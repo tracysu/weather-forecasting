@@ -6,7 +6,7 @@ import requests
 # REPLACE with your API key. collect from: https://newsapi.org/
 
 #api = NewsApiClient(api_key='77950512b1c34bac828f32bd9e22e550')
-# API Endpoints guide: https://newsapi.org/docs/endpoints/top-headlinesa
+# API Endpoints guide: https://newsapi.org/docs/endpoints/top-headlines
 url = ('https://newsapi.org/v2/top-headlines?'
        'country=us&'
        'category=health&'
