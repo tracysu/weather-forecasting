@@ -12,6 +12,7 @@ if __name__ == "__main__":
 
     weekURL = (f'https://api.open-meteo.com/v1/forecast?latitude=40.83&longitude=-115.76&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max&temperature_unit=fahrenheit&windspeed_unit=ms&precipitation_unit=inch&timezone=America%2FLos_Angeles')
     dayURL = (f'https://api.open-meteo.com/v1/forecast?latitude=40.83&longitude=-115.76&hourly=temperature_2m,apparent_temperature,precipitation_probability,weathercode,visibility&daily=sunrise,sunset&current_weather=true&temperature_unit=fahrenheit&windspeed_unit=ms&precipitation_unit=inch&forecast_days=1&timezone=America%2FLos_Angeles')
+    aqiURL = (f'https://air-quality-api.open-meteo.com/v1/air-quality?latitude=52.5235&longitude=13.4115&hourly=us_aqi')
     # city_url_search = (f'https://geocoding-api.open-meteo.com/v1/search?name=New+York&count=10&language=en&format=json')
     
     WMO = {
@@ -22,6 +23,8 @@ if __name__ == "__main__":
     todayResults = today.json()
     thisWeek = requests.get(weekURL)
     weekResults = thisWeek.json()
+    airQuality = requests.get(aqiURL)
+    aqiResults = airQuality.json()
 
     # print(datetime.fromisoformat(todayResults["hourly"]["time"][0]))
 
@@ -30,6 +33,24 @@ if __name__ == "__main__":
     # print('Time: ', todayResults["hourly"]["time"][0])
     # print('Later temp: ', todayResults["hourly"]["temperature_2m"][0])
     vision = []
+    outputAQI = []
+    todayAQI = []
+    for i in range(24):
+        current = aqiResults["hourly"]["us_aqi"][i]
+        quality_desc = ""
+        if current <= 50:
+            todayAQI.append("Good")
+        elif current <= 100:
+            todayAQI.append("Moderate")
+        elif current <= 150:
+            todayAQI.append("Unhealthy for Sensitive Groups")
+        elif current <= 200:
+            todayAQI.append("Unhealthy")
+        elif current <= 300:
+            todayAQI.append("Very Unhealthy")
+        else:
+            todayAQI.append("Dangerous")
+        outputAQI.append(aqiResults["hourly"]["us_aqi"][i])
     for i in range(24):
         miles = round(round(todayResults["hourly"]["visibility"][i]) * .00019)
         if miles >= 10:
@@ -49,6 +70,7 @@ if __name__ == "__main__":
         sets.append(str(datetime.fromisoformat(weekResults["daily"]["sunset"][i])))
     currentSet = str(datetime.fromisoformat(todayResults["daily"]["sunset"][0]))
     currentRise = str(datetime.fromisoformat(todayResults["daily"]["sunrise"][0]))
+    
     outputData = {
         "current":{
             "temp": todayResults["current_weather"]["temperature"],
@@ -63,6 +85,10 @@ if __name__ == "__main__":
             "drip": todayResults["hourly"]["precipitation_probability"],
             "code": todayResults["hourly"]["weathercode"],
             "visible": vision,
+            "aqi":{
+                "desc": todayAQI,
+                "num": outputAQI
+            }
         },
         "week":{
             "codes": weekResults["daily"]["weathercode"],
