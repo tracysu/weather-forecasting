@@ -9,7 +9,12 @@ if __name__ == "__main__":
     # 1. figure out city from lat + longitude
     
     # access temperature, air quality, flood data for a given lat, longitude for past + upcoming week
-
+    newsurl = ('https://newsapi.org/v2/top-headlines?'
+       'country=us&'
+       'category=health&'
+       'from=2023-06-16&'
+       'sortBy=popularity&'
+       'apiKey=77950512b1c34bac828f32bd9e22e550')
     weekURL = (f'https://api.open-meteo.com/v1/forecast?latitude=40.83&longitude=-115.76&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max&temperature_unit=fahrenheit&windspeed_unit=ms&precipitation_unit=inch&timezone=America%2FLos_Angeles')
     dayURL = (f'https://api.open-meteo.com/v1/forecast?latitude=40.83&longitude=-115.76&hourly=temperature_2m,apparent_temperature,precipitation_probability,weathercode,visibility&daily=sunrise,sunset&current_weather=true&temperature_unit=fahrenheit&windspeed_unit=ms&precipitation_unit=inch&forecast_days=1&timezone=America%2FLos_Angeles')
     aqiURL = (f'https://air-quality-api.open-meteo.com/v1/air-quality?latitude=52.5235&longitude=13.4115&hourly=us_aqi')
@@ -25,13 +30,15 @@ if __name__ == "__main__":
     weekResults = thisWeek.json()
     airQuality = requests.get(aqiURL)
     aqiResults = airQuality.json()
+    newsResponse = requests.get(newsurl)
+    newsResult = newsResponse.json()
+    articles = newsResult['articles']
+    newsTitles = []
+    newsSource = []
+    for article in articles[:3]:
+        newsTitles.append(article["title"])
+        newsSource.append(article["source"]["name"])
 
-    # print(datetime.fromisoformat(todayResults["hourly"]["time"][0]))
-
-    # print('Current temp: ', todayResults["current_weather"]["temperature"])
-    # print('Current windspeed: ', todayResults["current_weather"]["windspeed"])
-    # print('Time: ', todayResults["hourly"]["time"][0])
-    # print('Later temp: ', todayResults["hourly"]["temperature_2m"][0])
     vision = []
     outputAQI = []
     todayAQI = []
@@ -97,6 +104,10 @@ if __name__ == "__main__":
             "rise": rises,
             "sets": sets,
             "drip": weekResults["daily"]["precipitation_probability_max"]
+        },
+        "news":{
+            "title": newsTitles,
+            "desc": newsSource
         }
     }
 
